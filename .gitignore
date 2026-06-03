@@ -1,0 +1,9 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+# bỏ ignore env tạm thời
+# .env*
+!.env.example

@@ -1,0 +1,126 @@
+{
+  "entities": {
+    "blog": {
+      "title": "Blog Post",
+      "description": "AI News, trends and research articles for AIUNI",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identify document key" },
+        "title": { "type": "string", "description": "Post title" },
+        "slug": { "type": "string", "description": "SEO friendly slug key" },
+        "excerpt": { "type": "string", "description": "Brief description excerpt" },
+        "content": { "type": "string", "description": "Main body written markdown format" },
+        "coverImage": { "type": "string", "description": "Absolute image URL for cover header" },
+        "date": { "type": "string", "description": "Formatted date displayed string" },
+        "author": { "type": "string", "description": "Name of writing member" },
+        "readTime": { "type": "string", "description": "Time to read estimate e.g. 5 phút đọc" },
+        "category": { "type": "string", "description": "Category tags for grouping" },
+        "createdAt": { "type": "string", "description": "Creation timestamp identifier" }
+      },
+      "required": ["id", "title", "slug", "excerpt", "content", "coverImage", "date", "author", "readTime", "category", "createdAt"]
+    },
+    "report": {
+      "title": "Professional Industry Report",
+      "description": "Whitepapers and research publications authored by AIUNI experts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique key identifier" },
+        "title": { "type": "string", "description": "Report title" },
+        "slug": { "type": "string", "description": "SEO friendly slug" },
+        "excerpt": { "type": "string", "description": "Brief summary overview of the document" },
+        "content": { "type": "string", "description": "Rich detail outline in markdown format" },
+        "coverImage": { "type": "string", "description": "Full illustration cover image" },
+        "author": { "type": "string", "description": "Lead researcher authoring names" },
+        "date": { "type": "string", "description": "Date of release stamp" },
+        "downloadsCount": { "type": "number", "description": "Metric tracking total user downloads" },
+        "readTime": { "type": "string", "description": "Page or reading estimation length" },
+        "createdAt": { "type": "string", "description": "Creation date timestamp" },
+        "externalLink": { "type": "string", "description": "Custom external link to visit" }
+      },
+      "required": ["id", "title", "slug", "excerpt", "content", "coverImage", "author", "date", "downloadsCount", "readTime", "createdAt", "externalLink"]
+    },
+    "enrollment": {
+      "title": "Student Enrollment",
+      "description": "Registration entry for premium educational courses",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique order key ticket" },
+        "studentName": { "type": "string", "description": "Full name of the student" },
+        "studentEmail": { "type": "string", "description": "Active email target" },
+        "studentPhone": { "type": "string", "description": "Việt Nam phone number structure" },
+        "courseId": { "type": "string", "description": "Core educational course unique tag Id" },
+        "enrollmentDate": { "type": "string", "description": "Display format date registered" },
+        "status": { "type": "string", "enum": ["pending", "success"], "description": "Current authorization or payout status" },
+        "createdAt": { "type": "string", "description": "Database timestamp validation" }
+      },
+      "required": ["id", "studentName", "studentEmail", "studentPhone", "courseId", "enrollmentDate", "status", "createdAt"]
+    },
+    "websiteContent": {
+      "title": "Dynamic Page Content",
+      "description": "Enables completely custom text edits and drag-and-drop structural orders directly from administrative panel",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Target section name id" },
+        "heroTitle": { "type": "string" },
+        "heroSubtitle": { "type": "string" },
+        "aboutTitle": { "type": "string" },
+        "aboutText": { "type": "string" },
+        "sectionOrder": { "type": "string", "description": "Comma separated section ordering names" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "heroTitle", "heroSubtitle", "aboutTitle", "aboutText", "sectionOrder", "updatedAt"]
+    },
+    "comment": {
+      "title": "Blog Post Comment",
+      "description": "Visitor or student feedback comments on a blog post",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique comment ID" },
+        "blogId": { "type": "string", "description": "Resource ID of the blog post commented on" },
+        "userName": { "type": "string", "description": "Name of commenting user" },
+        "userEmail": { "type": "string", "description": "Email of commenting user" },
+        "userAvatar": { "type": "string", "description": "Avatar URL of comment author" },
+        "content": { "type": "string", "description": "Body segment text of the comment" },
+        "createdAt": { "type": "string", "description": "Creation timestamp identifier" }
+      },
+      "required": ["id", "blogId", "userName", "userEmail", "userAvatar", "content", "createdAt"]
+    },
+    "adminWhitelist": {
+      "title": "Whitelisted Administrator",
+      "description": "Whitelisted email address of administrators with full dashboard permissions",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "description": "Lowercase email key unique identifier" },
+        "addedBy": { "type": "string", "description": "Email details of super-admin who Whitelisted them" },
+        "createdAt": { "type": "string", "description": "Creation timestamp registry" }
+      },
+      "required": ["email", "addedBy", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/blogs/{blogId}": {
+      "schema": "blog",
+      "description": "Collection storing expert blogs and newsletters"
+    },
+    "/reports/{reportId}": {
+      "schema": "report",
+      "description": "Collection holding professional publications"
+    },
+    "/enrollments/{enrollmentId}": {
+      "schema": "enrollment",
+      "description": "Registrations made by public students"
+    },
+    "/content/{contentId}": {
+      "schema": "websiteContent",
+      "description": "Landing page dynamic blocks and content configuration files"
+    },
+    "/comments/{commentId}": {
+      "schema": "comment",
+      "description": "Collection storing user reviews and blog comments"
+    },
+    "/admins/{email}": {
+      "schema": "adminWhitelist",
+      "description": "Whitelisted administrators authorized to modify core resources"
+    }
+  }
+}

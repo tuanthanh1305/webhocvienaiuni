@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@600;700;800&family=Poppins:wght@600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Montserrat", "Poppins", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #F9FAFB;
+}
+
+/* Custom theme utilities for Professional Polish styling */
+.bg-aiuni-gradient {
+  background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #1E3A8A 0%, #3B82F6 100%);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+.soft-shadow {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.course-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+}
+
+/* Ensure smooth anchor jumps account for sticky navbar */
+section {
+  scroll-margin-top: 80px;
+}
+
+/* Custom scrollbar matching AIUNI aesthetic */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F9FAFB;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Custom continuous horizontal marquee/ticker keyframes & animation style */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 35s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}

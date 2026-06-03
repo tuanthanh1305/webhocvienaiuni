@@ -1,0 +1,236 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global safety net - default deny everything
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Reuseable global functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-\\+@\\.]+$');
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+             (request.auth.token.email == 'tuanthanhtt1305@gmail.com' ||
+              (request.auth.token.email_verified == true && exists(/databases/$(database)/documents/admins/$(request.auth.token.email))));
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // 2. Entity Validators
+    function isValidBlog(data) {
+      return data.keys().hasAll(['id', 'title', 'slug', 'excerpt', 'content', 'coverImage', 'date', 'author', 'readTime', 'category', 'createdAt']) &&
+             data.keys().size() == 11 &&
+             data.id is string && data.id.size() <= 100 &&
+             data.title is string && data.title.size() <= 500 &&
+             data.slug is string && data.slug.size() <= 500 &&
+             data.excerpt is string && data.excerpt.size() <= 2000 &&
+             data.content is string && data.content.size() <= 50000 &&
+             data.coverImage is string && data.coverImage.size() <= 2000 &&
+             data.date is string && data.date.size() <= 50 &&
+             data.author is string && data.author.size() <= 100 &&
+             data.readTime is string && data.readTime.size() <= 50 &&
+             data.category is string && data.category.size() <= 100;
+    }
+
+    function isValidReport(data) {
+      return data.keys().hasAll(['id', 'title', 'slug', 'excerpt', 'content', 'coverImage', 'author', 'date', 'downloadsCount', 'readTime', 'createdAt', 'externalLink']) &&
+             data.keys().size() == 12 &&
+             data.id is string && data.id.size() <= 100 &&
+             data.title is string && data.title.size() <= 500 &&
+             data.slug is string && data.slug.size() <= 500 &&
+             data.excerpt is string && data.excerpt.size() <= 2000 &&
+             data.content is string && data.content.size() <= 50000 &&
+             data.coverImage is string && data.coverImage.size() <= 2000 &&
+             data.author is string && data.author.size() <= 100 &&
+             data.date is string && data.date.size() <= 50 &&
+             data.downloadsCount is number &&
+             data.readTime is string && data.readTime.size() <= 50 &&
+             data.externalLink is string && data.externalLink.size() <= 2000;
+    }
+
+    function isValidEnrollment(data) {
+      return data.keys().hasAll(['id', 'studentName', 'studentEmail', 'studentPhone', 'courseId', 'enrollmentDate', 'status', 'createdAt']) &&
+             data.keys().size() == 8 &&
+             data.id is string && data.id.size() <= 100 &&
+             data.studentName is string && data.studentName.size() <= 200 &&
+             data.studentEmail is string && data.studentEmail.size() <= 200 &&
+             data.studentPhone is string && data.studentPhone.size() <= 50 &&
+             data.courseId is string && data.courseId.size() <= 128 &&
+             data.enrollmentDate is string && data.enrollmentDate.size() <= 50 &&
+             data.status is string && (data.status == 'pending' || data.status == 'success');
+    }
+
+    function isValidContent(data) {
+      return data.keys().hasAll(['id', 'heroTitle', 'heroSubtitle', 'aboutTitle', 'aboutText', 'sectionOrder', 'updatedAt']) &&
+             data.keys().size() == 7 &&
+             data.id is string && data.id.size() <= 100 &&
+             data.heroTitle is string && data.heroTitle.size() <= 1000 &&
+             data.heroSubtitle is string && data.heroSubtitle.size() <= 3000 &&
+             data.aboutTitle is string && data.aboutTitle.size() <= 1000 &&
+             data.aboutText is string && data.aboutText.size() <= 10000 &&
+             data.sectionOrder is string && data.sectionOrder.size() <= 1000;
+    }
+
+    function isValidComment(data) {
+      return data.keys().hasAll(['id', 'blogId', 'userName', 'userEmail', 'userAvatar', 'content', 'createdAt']) &&
+             data.keys().size() == 7 &&
+             data.id is string && data.id.size() <= 100 &&
+             data.blogId is string && data.blogId.size() <= 100 &&
+             data.userName is string && data.userName.size() <= 200 &&
+             data.userEmail is string && data.userEmail.size() <= 200 &&
+             data.userAvatar is string && data.userAvatar.size() <= 2000 &&
+             data.content is string && data.content.size() <= 5000;
+    }
+
+    function isValidAdminWhitelist(data) {
+      return data.keys().hasAll(['email', 'addedBy', 'createdAt']) &&
+             data.keys().size() == 3 &&
+             data.email is string && data.email.size() <= 200 &&
+             data.addedBy is string && data.addedBy.size() <= 200;
+    }
+
+    function isValidContact(data) {
+      return data.keys().hasAll(['id', 'name', 'email', 'phone', 'message', 'createdAt']) &&
+             data.keys().size() == 6 &&
+             data.id is string && data.id.size() <= 100 &&
+             data.name is string && data.name.size() <= 200 &&
+             data.email is string && data.email.size() <= 200 &&
+             data.phone is string && data.phone.size() <= 50 &&
+             data.message is string && data.message.size() <= 5000 &&
+             data.createdAt is string && data.createdAt.size() <= 100;
+    }
+
+    // 3. Match rules for collections
+
+    // --- Courses Collection ---
+    match /courses/{courseId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(courseId);
+    }
+
+    // --- Contacts/Messages Collection ---
+    match /contacts/{contactId} {
+      allow read, list: if isAdmin();
+      allow create: if isValidId(contactId) && isValidContact(incoming());
+      allow delete: if isAdmin() && isValidId(contactId);
+    }
+
+    // --- Instructors Collection ---
+    match /instructors/{instructorId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(instructorId);
+    }
+
+    // --- Advisors/Experts Collection ---
+    match /advisors/{advisorId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(advisorId);
+    }
+
+    // --- Media Mentions sub-collections ---
+    match /media_videos/{id} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(id);
+    }
+    match /media_highlighted/{id} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(id);
+    }
+    match /media_news/{id} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(id);
+    }
+
+    // --- Testimonials Collection ---
+    match /testimonials/{id} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(id);
+    }
+
+    // --- Partner & Collaboration Collections ---
+    match /elite_partners/{id} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(id);
+    }
+    match /international_collabs/{id} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(id);
+    }
+    match /development_vectors/{id} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(id);
+    }
+    match /marquee_logos/{id} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(id);
+    }
+
+    // --- Blogs Collection ---
+    match /blogs/{blogId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(blogId) && isValidBlog(incoming());
+      allow update: if isAdmin() && isValidId(blogId) && isValidBlog(incoming());
+      allow delete: if isAdmin() && isValidId(blogId);
+    }
+
+    // --- Reports Collection ---
+    match /reports/{reportId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(reportId) && isValidReport(incoming());
+      allow update: if (isAdmin() && isValidId(reportId) && isValidReport(incoming())) ||
+                    // Public download increment action
+                    (isValidId(reportId) && isValidReport(incoming()) &&
+                     incoming().diff(existing()).affectedKeys().hasOnly(['downloadsCount']));
+      allow delete: if isAdmin() && isValidId(reportId);
+    }
+
+    // --- Enrollments Collection ---
+    match /enrollments/{enrollmentId} {
+      allow get: if isAdmin() || (isSignedIn() && existing().studentEmail == request.auth.token.email);
+      allow list: if isAdmin();
+      allow create: if isValidId(enrollmentId) && isValidEnrollment(incoming()) && incoming().status == 'pending';
+      allow update: if isAdmin() && isValidId(enrollmentId) && isValidEnrollment(incoming());
+      allow delete: if isAdmin() && isValidId(enrollmentId);
+    }
+
+    // --- Website Content Collection ---
+    match /content/{contentId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(contentId) && isValidContent(incoming());
+      allow update: if isAdmin() && isValidId(contentId) && isValidContent(incoming());
+      allow delete: if isAdmin() && isValidId(contentId);
+    }
+
+    // --- Comments Collection ---
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if isValidId(commentId) && isValidComment(incoming());
+      allow delete: if isAdmin() && isValidId(commentId);
+      allow update: if false;
+    }
+
+    // --- Admins Whitelist ---
+    match /admins/{emailLower} {
+      allow read: if isAdmin();
+      allow write: if isSignedIn() &&
+                    request.auth.token.email_verified == true &&
+                    request.auth.token.email == 'tuanthanhtt1305@gmail.com' &&
+                    isValidAdminWhitelist(incoming());
+    }
+
+  }
+}

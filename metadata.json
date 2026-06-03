@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Remix: AIUNI",
+  "description": "Nền tảng đào tạo AI hàng đầu Việt Nam. Khóa học AI, workshop, đào tạo cá nhân và doanh nghiệp chuyên sâu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
